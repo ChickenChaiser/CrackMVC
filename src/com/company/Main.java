@@ -7,7 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-/*
+/* шпаргалка для создания файла с дисками
         VideoLibrary.addDisk(new Disk("Побег из Шоушенка", "The Shawshank Redemption", 1994));
         VideoLibrary.addDisk(new Disk("Зелёная миля", "The Green Mile",1999));
         VideoLibrary.addDisk(new Disk("Форрест Гамп", "Forrest Gump",1994));

@@ -207,6 +207,7 @@ public class View extends JFrame {
                         issuedModel.addElement(disk);
                         issuedDiskList.setModel(issuedModel);
                         unissuedDiskList.setModel(unissuedModel);
+                        editButton.setEnabled(false);
                     }
                 }
             }

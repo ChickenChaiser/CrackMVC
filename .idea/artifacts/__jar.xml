@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Справочная система:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/__jar</output-path>
+    <root id="archive" name="Справочная система.jar">
+      <element id="module-output" name="Справочная система" />
+    </root>
+  </artifact>
+</component>

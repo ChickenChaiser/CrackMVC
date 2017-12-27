@@ -1,8 +1,10 @@
 package com.company;
 
+import com.apple.laf.AquaFileChooserUI;
 import com.company.videolibrary.Disk;
 import com.company.videolibrary.Issuance;
 import com.company.videolibrary.VideoLibrary;
+import javafx.stage.FileChooser;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -12,6 +14,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Calendar;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class View extends JFrame {
 
@@ -28,6 +32,7 @@ public class View extends JFrame {
     private JButton deleteButton;
     private JButton editButton;
     private JButton issueButton;
+    private File currentFile;
 
     private VideoLibrary videoLibrary = new VideoLibrary();
     private DefaultListModel<Disk> issuedModel = new DefaultListModel<>();
@@ -36,12 +41,21 @@ public class View extends JFrame {
 
     public View() {
 
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        russifyUI();
+
         JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
 
         if (fileChooser.showDialog(this, "Выберите файл видеотеки") == JFileChooser.APPROVE_OPTION) {
 
-            try (FileInputStream file = new FileInputStream(fileChooser.getSelectedFile())) {
-                VideoLibrary.loadDiskList(file);
+            currentFile = fileChooser.getSelectedFile();
+
+            try (FileInputStream file = new FileInputStream(currentFile)) {
+                videoLibrary.loadDiskList(file);
                 updateDiskLists();
 
             } catch (Exception exception) {
@@ -112,17 +126,23 @@ public class View extends JFrame {
 
 
         deleteButton.addActionListener(e -> {
-            if (!unissuedDiskList.isSelectionEmpty()) {
-                VideoLibrary.removeDisk(unissuedModel.get(unissuedDiskList.getSelectedIndex()));
-                unissuedModel.remove(unissuedDiskList.getSelectedIndex());
-            } else if (!issuedDiskList.isSelectionEmpty()) {
-                VideoLibrary.removeDisk(issuedModel.get(issuedDiskList.getSelectedIndex()));
-                issuedModel.remove(issuedDiskList.getSelectedIndex());
+            Object[] options = {"Да", "Нет"};
+            int result = JOptionPane.showOptionDialog(null, "Удалить диск?",
+                    "Подтверждение", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+            if (result == 0) {
+                if (!unissuedDiskList.isSelectionEmpty()) {
+                    videoLibrary.removeDisk(unissuedModel.get(unissuedDiskList.getSelectedIndex()));
+                    unissuedModel.remove(unissuedDiskList.getSelectedIndex());
+                } else if (!issuedDiskList.isSelectionEmpty()) {
+                    videoLibrary.removeDisk(issuedModel.get(issuedDiskList.getSelectedIndex()));
+                    issuedModel.remove(issuedDiskList.getSelectedIndex());
+                }
+                returnButton.setEnabled(false);
+                issueButton.setEnabled(false);
+                editButton.setEnabled(false);
+                deleteButton.setEnabled(false);
             }
-            returnButton.setEnabled(false);
-            issueButton.setEnabled(false);
-            editButton.setEnabled(false);
-            deleteButton.setEnabled(false);
         });
 
         returnButton.addActionListener(e -> {
@@ -163,7 +183,7 @@ public class View extends JFrame {
                 disk.setEngTitle(textEngTitle.getText());
                 try {
                     int year = Integer.parseInt(textReleaseYear.getText());
-                    if (year < 1800 || year > Calendar.getInstance().get(Calendar.YEAR) + 1)
+                    if (year < 1800 || year > Calendar.getInstance().get(Calendar.YEAR) + 10)
                         throw new NumberFormatException();
                     disk.setReleaseYear(year);
                 } catch (NumberFormatException ex) {
@@ -199,10 +219,11 @@ public class View extends JFrame {
                         new JLabel("Имя"), name,
                         new JLabel("Телефонный номер"), phonenumber
                 };
-                int result = JOptionPane.showConfirmDialog(null, inputs, "Выдача диска",
-                        JOptionPane.PLAIN_MESSAGE, JOptionPane.PLAIN_MESSAGE, null);
+                Object[] options = {"Выдать", "Отмена"};
+                int result = JOptionPane.showOptionDialog(null, inputs, "Выдача диска",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 
-                if (result != -1) {
+                if (result == 0) {
                     if (surname.getText().equals("") && name.getText().equals("") && phonenumber.getText().equals("")) {
                         JOptionPane.showMessageDialog(null,
                                 "Информация о выдаче диска не была заполнена.", "Ошибка", JOptionPane.ERROR_MESSAGE);
@@ -255,7 +276,7 @@ public class View extends JFrame {
                     if (fileChooser.showDialog(this, "Выберите файл видеотеки") == JFileChooser.APPROVE_OPTION) {
 
                         try (FileInputStream file = new FileInputStream(fileChooser.getSelectedFile())) {
-                            VideoLibrary.loadDiskList(file);
+                            videoLibrary.loadDiskList(file);
                             updateDiskLists();
 
                         } catch (Exception exception) {
@@ -269,7 +290,7 @@ public class View extends JFrame {
                     if (fileChooser.showDialog(this, "Выберите файл видеотеки") == JFileChooser.APPROVE_OPTION) {
 
                         try (FileInputStream file = new FileInputStream(fileChooser.getSelectedFile())) {
-                            VideoLibrary.addDataFromFile(file);
+                            videoLibrary.addDataFromFile(file);
                             updateDiskLists();
 
                         } catch (Exception exception) {
@@ -277,6 +298,41 @@ public class View extends JFrame {
                         }
                     }
                     break;
+                }
+                case "Добавить новый диск": {
+
+                    JTextField rusTitle = new JTextField();
+                    JTextField engTitle = new JTextField();
+                    JTextField yearOfRelease = new JTextField();
+                    JComponent[] inputs = new JComponent[]{
+                            new JLabel("Русское название фильма"), rusTitle,
+                            new JLabel("Английское название фильма"), engTitle,
+                            new JLabel("Год выпуска"), yearOfRelease
+                    };
+                    Object[] options = {"Добавить", "Отмена"};
+                    int result = JOptionPane.showOptionDialog(null, inputs, "Добавление диска",
+                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+                    if (result == 0) {
+                        if (rusTitle.getText().equals("") && engTitle.getText().equals("") && yearOfRelease.getText().equals("")) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Информация о выдаче диска не была заполнена.", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            try {
+                                int year = Integer.parseInt(yearOfRelease.getText());
+                                if (year < 1800 || year > Calendar.getInstance().get(Calendar.YEAR) + 10)
+                                    throw new NumberFormatException();
+                                Disk disk = new Disk(rusTitle.getText(), engTitle.getText(), year);
+                                unissuedModel.addElement(disk);
+                                unissuedDiskList.setModel(unissuedModel);
+                                videoLibrary.addDisk(disk);
+                                editButton.setEnabled(false);
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(null,
+                                        "Введено некорректное значение года выпуска", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    }
                 }
             }
         };
@@ -340,5 +396,26 @@ public class View extends JFrame {
 
         issuedDiskList.setModel(issuedModel);
         unissuedDiskList.setModel(unissuedModel);
+    }
+
+    private void russifyUI() {
+        UIManager.put("FileChooser.byNameText", "Имя");
+        UIManager.put("FileChooser.byDateText", "Дата изменения");
+        UIManager.put("FileChooser.newFolderTitleText", "Новая папка");
+        UIManager.put("FileChooser.newFolderButtonText", "Новая папка");
+        UIManager.put("FileChooser.untitledFolderName", "новая папка");
+        UIManager.put("FileChooser.newFolderPromptText", "Создать папку:");
+        UIManager.put("FileChooser.createButtonText", "Создать");
+        UIManager.put("FileChooser.filesOfTypeLabelText", "Тип файлов");
+        UIManager.put("FileChooser.acceptAllFileFilterText", "Все файлы");
+        UIManager.put("FileChooser.cancelButtonText", "Отмена");
+        UIManager.put("FileChooser.newFolderExistsErrorText", "Это имя уже занято!");
+        UIManager.put("FileChooser.fileNameLabelText", "Имя файла");
+        UIManager.put("FileChooser.upFolderToolTipText", "На один уровень вверх");
+        UIManager.put("FileChooser.listViewButtonToolTipText", "Список");
+        UIManager.put("FileChooser.detailsViewButtonToolTipText", "Таблица");
+        UIManager.put("FileChooser.newFolderToolTipText", "Создание новой папки");
+        UIManager.put("FileChooser.lookInLabelText", "Текущая папка: ");
+        UIManager.put("FileChooser.openButtonText", "Открыть");
     }
 }

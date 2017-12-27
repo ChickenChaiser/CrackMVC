@@ -18,7 +18,7 @@ public class VideoLibrary implements Iterable<Disk> {
      *
      * @param out файл для сохранения
      */
-    public static void writeDiskList(FileOutputStream out) throws IOException {
+    public void writeDiskList(FileOutputStream out) throws IOException {
         ObjectOutputStream objectOut = new ObjectOutputStream(out);
         objectOut.writeObject(diskList);
     }
@@ -28,7 +28,7 @@ public class VideoLibrary implements Iterable<Disk> {
      *
      * @param in файл видеотеки
      */
-    public static void loadDiskList(FileInputStream in) {
+    public void loadDiskList(FileInputStream in) {
         try {
             ObjectInputStream objectIn = new ObjectInputStream(in);
             diskList = (ArrayList<Disk>) objectIn.readObject();
@@ -43,7 +43,7 @@ public class VideoLibrary implements Iterable<Disk> {
      *
      * @param in файл видеотеки
      */
-    public static void addDataFromFile(FileInputStream in) {
+    public void addDataFromFile(FileInputStream in) {
         try {
             ObjectInputStream objectIn = new ObjectInputStream(in);
             ArrayList<Disk> data = (ArrayList<Disk>) objectIn.readObject();
@@ -60,7 +60,7 @@ public class VideoLibrary implements Iterable<Disk> {
      *
      * @return количество дисков (int)
      */
-    public static int getNumberOfDisks() {
+    public int getNumberOfDisks() {
         return diskList.size();
     }
 
@@ -70,7 +70,7 @@ public class VideoLibrary implements Iterable<Disk> {
      * @param index индекс диска в видеотеке
      * @return Disk
      */
-    public static Disk getDisk(int index) {
+    public Disk getDisk(int index) {
         return diskList.get(index);
     }
 
@@ -79,7 +79,7 @@ public class VideoLibrary implements Iterable<Disk> {
      *
      * @param disk диск для добавления
      */
-    public static void addDisk(Disk disk) {
+    public void addDisk(Disk disk) {
         diskList.add(disk);
     }
 
@@ -89,7 +89,7 @@ public class VideoLibrary implements Iterable<Disk> {
      * @param index индекс заменяемого диска
      * @param disk  новый диск
      */
-    public static void setDisk(int index, Disk disk) {
+    public void setDisk(int index, Disk disk) {
         diskList.set(index, disk);
     }
 
@@ -99,7 +99,7 @@ public class VideoLibrary implements Iterable<Disk> {
      * @param position индекс удаляемого диска
      * @throws IndexOutOfBoundsException диска с таким индексом не существует
      */
-    public static void removeDisk(int position) {
+    public void removeDisk(int position) {
         if (position >= 0 && position < getNumberOfDisks()) diskList.remove(position);
         else throw new IndexOutOfBoundsException("Диск не найден");
     }
@@ -111,7 +111,7 @@ public class VideoLibrary implements Iterable<Disk> {
      * @throws NullPointerException диск не найден
      * @see VideoLibrary#removeDisk(int)
      */
-    public static void removeDisk(Disk disk) {
+    public void removeDisk(Disk disk) {
         if (disk != null) diskList.remove(disk);
         else throw new NullPointerException("Диск не найден");
     }

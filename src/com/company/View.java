@@ -149,7 +149,7 @@ public class View extends JFrame {
                     disk.setReleaseYear(year);
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null,
-                            "Введено некорректное значение года выпуска.", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                            "Введено некорректное значение года выпуска", "Ошибка", JOptionPane.ERROR_MESSAGE);
                 }
 
                 if (!textSurname.getText().equals("") || !textName.getText().equals("") || !textPhonenumber.getText().equals("")) {
@@ -168,7 +168,7 @@ public class View extends JFrame {
                     disk.setReleaseYear(year);
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null,
-                            "Введено некорректное значение года выпуска.", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                            "Введено некорректное значение года выпуска", "Ошибка", JOptionPane.ERROR_MESSAGE);
                 }
 
                 if (textSurname.getText().equals("") && textName.getText().equals("") && textPhonenumber.getText().equals("")) {

@@ -3,17 +3,15 @@ package com.company;
 import com.company.videolibrary.Disk;
 import com.company.videolibrary.Issuance;
 import com.company.videolibrary.VideoLibrary;
-import sun.util.calendar.BaseCalendar;
-import sun.util.calendar.LocalGregorianCalendar;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.FileReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Calendar;
-import java.util.Date;
 
 public class View extends JFrame {
 
@@ -30,21 +28,26 @@ public class View extends JFrame {
     private JButton deleteButton;
     private JButton editButton;
     private JButton issueButton;
-    private VideoLibrary videoLibrary;
 
-    public View(VideoLibrary videoLibrary) {
+    private VideoLibrary videoLibrary = new VideoLibrary();
+    private DefaultListModel<Disk> issuedModel = new DefaultListModel<>();
+    private DefaultListModel<Disk> unissuedModel = new DefaultListModel<>();
 
-        this.videoLibrary = videoLibrary;
 
-        DefaultListModel<Disk> issuedModel = new DefaultListModel<>();
-        DefaultListModel<Disk> unissuedModel = new DefaultListModel<>();
+    public View() {
 
-        for (Disk d : videoLibrary)
-            if (d.isIssued()) issuedModel.addElement(d);
-            else unissuedModel.addElement(d);
+        JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
 
-        issuedDiskList.setModel(issuedModel);
-        unissuedDiskList.setModel(unissuedModel);
+        if (fileChooser.showDialog(this, "Выберите файл видеотеки") == JFileChooser.APPROVE_OPTION) {
+
+            try (FileInputStream file = new FileInputStream(fileChooser.getSelectedFile())) {
+                VideoLibrary.loadDiskList(file);
+                updateDiskLists();
+
+            } catch (Exception exception) {
+                JOptionPane.showMessageDialog(this, exception);
+            }
+        }
 
 
         //========================================= DiskList ActionListeners =========================================
@@ -141,7 +144,8 @@ public class View extends JFrame {
                 disk.setEngTitle(textEngTitle.getText());
                 try {
                     int year = Integer.parseInt(textReleaseYear.getText());
-                    if (year < 1800 || year > Calendar.getInstance().get(Calendar.YEAR) + 1) throw new NumberFormatException();
+                    if (year < 1800 || year > Calendar.getInstance().get(Calendar.YEAR) + 1)
+                        throw new NumberFormatException();
                     disk.setReleaseYear(year);
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null,
@@ -159,7 +163,8 @@ public class View extends JFrame {
                 disk.setEngTitle(textEngTitle.getText());
                 try {
                     int year = Integer.parseInt(textReleaseYear.getText());
-                    if (year < 1800 || year > Calendar.getInstance().get(Calendar.YEAR) + 1) throw new NumberFormatException();
+                    if (year < 1800 || year > Calendar.getInstance().get(Calendar.YEAR) + 1)
+                        throw new NumberFormatException();
                     disk.setReleaseYear(year);
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null,
@@ -239,27 +244,39 @@ public class View extends JFrame {
         textPhonenumber.getDocument().addDocumentListener(documentListener);
 
 
-        ActionListener menuChoiceListener = event -> {
-            /*switch (event.getActionCommand()) {
-                case "Open dwelling": {
-                    type = "Dwelling";
-                    Buildings.setCurrentFactory(new DwellingFactory());
-                    break;
-                }
-                case "Open office building": {
-                    type = "Office building";
-                    Buildings.setCurrentFactory(new DwellingFactory());
-                    break;
-                }
-            }*/
-            JFileChooser fileChooser = new JFileChooser();
-            int result = fileChooser.showDialog(this, "Выберите файл");
+        //================================================= JMenuBar =================================================
 
-            if (result == JFileChooser.APPROVE_OPTION) {
-                try (FileReader file = new FileReader(fileChooser.getSelectedFile())) {
-                    //initFrames(Buildings.readBuilding(file), type);
-                } catch (Exception exception) {
-                    JOptionPane.showMessageDialog(this, exception);
+
+        ActionListener menuChoiceListener = event -> {
+            switch (event.getActionCommand()) {
+
+                case "Открыть файл видеотеки": {
+
+                    if (fileChooser.showDialog(this, "Выберите файл видеотеки") == JFileChooser.APPROVE_OPTION) {
+
+                        try (FileInputStream file = new FileInputStream(fileChooser.getSelectedFile())) {
+                            VideoLibrary.loadDiskList(file);
+                            updateDiskLists();
+
+                        } catch (Exception exception) {
+                            JOptionPane.showMessageDialog(this, exception);
+                        }
+                    }
+                    break;
+                }
+                case "Загрузить из файла видеотеки": {
+
+                    if (fileChooser.showDialog(this, "Выберите файл видеотеки") == JFileChooser.APPROVE_OPTION) {
+
+                        try (FileInputStream file = new FileInputStream(fileChooser.getSelectedFile())) {
+                            VideoLibrary.addDataFromFile(file);
+                            updateDiskLists();
+
+                        } catch (Exception exception) {
+                            JOptionPane.showMessageDialog(this, exception);
+                        }
+                    }
+                    break;
                 }
             }
         };
@@ -276,7 +293,6 @@ public class View extends JFrame {
         item = new JMenuItem("Сохранить");
         item.addActionListener(menuChoiceListener);
         fileMenu.add(item);
-        //fileMenu.add(new JSeparator());
 
         item = new JMenuItem("Сохранить как...");
         item.addActionListener(menuChoiceListener);
@@ -311,5 +327,18 @@ public class View extends JFrame {
         textSurname.setText("");
         textName.setText("");
         textPhonenumber.setText("");
+    }
+
+    private void updateDiskLists() {
+
+        issuedModel.clear();
+        unissuedModel.clear();
+
+        for (Disk d : videoLibrary)
+            if (d.isIssued()) issuedModel.addElement(d);
+            else unissuedModel.addElement(d);
+
+        issuedDiskList.setModel(issuedModel);
+        unissuedDiskList.setModel(unissuedModel);
     }
 }

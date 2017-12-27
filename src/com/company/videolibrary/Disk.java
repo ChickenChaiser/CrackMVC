@@ -132,8 +132,8 @@ public class Disk implements Serializable {
     }
 
     /**
-     * Возвращает true, если значения полей {@link Disk#rusTitle}, {@link Disk#engTitle}, {@link Disk#releaseYear} и
-     * {@link Disk#issuance} совпадают. False - если хоть одно из значений полей не совпало.
+     * Возвращает true, если значения полей {@link Disk#rusTitle}, {@link Disk#engTitle} и {@link Disk#releaseYear}
+     * совпадают. False - если хоть одно из значений полей не совпало.
      *
      * @param obj диск для сравнения
      * @return boolean
@@ -141,11 +141,8 @@ public class Disk implements Serializable {
     @Override
     public boolean equals(Object obj) {
         Disk d = (Disk) obj;
-        if (rusTitle.equals(d.rusTitle) && engTitle.equals(d.engTitle) && releaseYear == d.releaseYear) {
-            if (issuance == null && d.issuance == null) return true;
-            else if (issuance == null || d.issuance == null) return false;
-            else return (issuance.equals(d.issuance));
-        } else return false;
+        if (rusTitle.equals(d.rusTitle) && engTitle.equals(d.engTitle) && releaseYear == d.releaseYear) return true;
+        else return false;
     }
 
     /**

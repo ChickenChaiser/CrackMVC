@@ -35,12 +35,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        VideoLibrary videoLibrary = null;
-        try {
-            videoLibrary = new VideoLibrary(new FileInputStream("DiskData.dat"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        View view = new View(videoLibrary);
+        View view = new View();
     }
 }
+

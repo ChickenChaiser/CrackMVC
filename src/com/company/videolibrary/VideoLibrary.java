@@ -13,10 +13,6 @@ public class VideoLibrary implements Iterable<Disk> {
      */
     private static ArrayList<Disk> diskList = new ArrayList<>();
 
-    public VideoLibrary(FileInputStream in) {
-        loadDiskList(in);
-    }
-
     /**
      * Сохраняет видеотеку в файл
      *
@@ -38,7 +34,7 @@ public class VideoLibrary implements Iterable<Disk> {
             diskList = (ArrayList<Disk>) objectIn.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            diskList = new ArrayList<>();
+            diskList.clear();
         }
     }
 

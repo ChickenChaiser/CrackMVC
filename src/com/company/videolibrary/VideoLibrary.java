@@ -8,10 +8,11 @@ import java.util.Iterator;
  * Обработчик данных домашней видотеки
  */
 public class VideoLibrary implements Iterable<Disk> {
+
     /**
      * Хранилище дисков
      */
-    private static ArrayList<Disk> diskList = new ArrayList<>();
+    private ArrayList<Disk> diskList = new ArrayList<>();
 
     /**
      * Сохраняет видеотеку в файл
@@ -39,20 +40,32 @@ public class VideoLibrary implements Iterable<Disk> {
     }
 
     /**
-     * Загружает дополнительные данные видеотеки из файла in
+     * Добавляет дополнительные данные видеотеки из коллекции disks
      *
-     * @param in файл видеотеки
+     * @param disks коллекция дисков для добавления
+     *
+     * @return возвращает коллекцию дисков, попавших в видеотеку (ArrayList<{@link Disk}>)
      */
-    public void addDataFromFile(FileInputStream in) {
-        try {
-            ObjectInputStream objectIn = new ObjectInputStream(in);
-            ArrayList<Disk> data = (ArrayList<Disk>) objectIn.readObject();
-            for (Disk d : data) {
-                if (!diskList.contains(d)) diskList.add(d);
+    public ArrayList<Disk> addDisks(ArrayList<Disk> disks) {
+
+        ArrayList<Disk> uniqueDisks = new ArrayList<>();
+
+        for (Disk d : disks) {
+            if (!diskList.contains(d)) {
+                diskList.add(d);
+                uniqueDisks.add(d);
             }
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
         }
+        return uniqueDisks;
+    }
+
+    /**
+     * Возвращает массив дисков видеотеки
+     *
+     * @return массив дисков (ArrayList)
+     */
+    public ArrayList<Disk> getDiskList() {
+        return diskList;
     }
 
     /**
@@ -102,6 +115,26 @@ public class VideoLibrary implements Iterable<Disk> {
     public void removeDisk(int position) {
         if (position >= 0 && position < getNumberOfDisks()) diskList.remove(position);
         else throw new IndexOutOfBoundsException("Диск не найден");
+    }
+
+    /**
+     * Удаляет информацию о выдаче диска
+     *
+     * @param position индекс диска
+     * @throws IndexOutOfBoundsException диска с таким индексом не существует
+     */
+    public void unissueDisk(int position) {
+        if (position >= 0 && position < getNumberOfDisks()) diskList.get(position).removeIssuance();
+        else throw new IndexOutOfBoundsException("Диск не найден");
+    }
+
+    /**
+     * Удаляет индекс диска в коллекции
+     *
+     * @param disk диск, индекс которого нужно получить
+     */
+    public int getDiskIndex(Disk disk) {
+        return diskList.indexOf(disk);
     }
 
     /**

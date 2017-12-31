@@ -76,7 +76,10 @@ public class View extends JFrame {
      * Кнопка выдачи диска
      */
     private JButton issueButton;
-
+    /**
+     * Выбор способа сортировки
+     */
+    private JComboBox sortingСomboBox;
     /**
      * Локальная коллекция дисков
      */
@@ -89,13 +92,15 @@ public class View extends JFrame {
      * Поток выходных данных
      */
     private ObjectOutputStream out;
-
+    /**
+     * Код способа сортировки
+     */
+    private int sortingBy;
+    
     private DefaultListModel<Disk> issuedModel = new DefaultListModel<>();
     private DefaultListModel<Disk> unissuedModel = new DefaultListModel<>();
     private boolean isConnected;
-    private int sortingBy;
 
-    private JComboBox sortingСomboBox;
 
     /**
      * Поток-слушатель команд, высылаемых с сервера

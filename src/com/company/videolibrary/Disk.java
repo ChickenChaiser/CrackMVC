@@ -120,8 +120,7 @@ public class Disk implements Serializable {
      * @return boolean
      */
     public boolean isIssued() {
-        if (issuance == null) return false;
-        else return true;
+        return issuance != null;
     }
 
     /**
@@ -140,8 +139,10 @@ public class Disk implements Serializable {
      */
     @Override
     public boolean equals(Object obj) {
-        Disk d = (Disk) obj;
-        if (rusTitle.equals(d.rusTitle) && engTitle.equals(d.engTitle) && releaseYear == d.releaseYear) return true;
+        if (obj instanceof Disk) {
+            Disk d = (Disk) obj;
+            return rusTitle.equals(d.rusTitle) && engTitle.equals(d.engTitle) && releaseYear == d.releaseYear;
+        }
         else return false;
     }
 

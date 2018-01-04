@@ -157,6 +157,7 @@ public class Server {
                     JOptionPane.showMessageDialog(null,
                             "Сервер запущен", "Запуск сервера", JOptionPane.PLAIN_MESSAGE);
 
+                    //noinspection InfiniteLoopStatement
                     for (; ; ) {
                         System.out.print("Ожидание соединения... ");
                         Socket client = server.accept();

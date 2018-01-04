@@ -98,9 +98,10 @@ public class Issuance implements Serializable {
      */
     @Override
     public boolean equals(Object obj) {
-        Issuance i = (Issuance) obj;
-        if (name.equals(i.name) && surname.equals(i.surname) && phonenumber.equals(i.phonenumber)) return true;
-        else return false;
+        if (obj instanceof Issuance) {
+            Issuance i = (Issuance) obj;
+            return name.equals(i.name) && surname.equals(i.surname) && phonenumber.equals(i.phonenumber);
+        } else return false;
     }
 
 

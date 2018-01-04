@@ -7,12 +7,10 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -79,7 +77,7 @@ public class View extends JFrame {
     /**
      * Выбор способа сортировки
      */
-    private JComboBox sortingСomboBox;
+    private JComboBox sortingComboBox;
     /**
      * Локальная коллекция дисков
      */
@@ -96,7 +94,7 @@ public class View extends JFrame {
      * Код способа сортировки
      */
     private int sortingBy;
-    
+
     private DefaultListModel<Disk> issuedModel = new DefaultListModel<>();
     private DefaultListModel<Disk> unissuedModel = new DefaultListModel<>();
     private boolean isConnected;
@@ -110,6 +108,7 @@ public class View extends JFrame {
         @Override
         public void run() {
             try {
+                //noinspection InfiniteLoopStatement
                 for (; ; ) {
                     Message message = (Message) in.readObject();
 
@@ -119,26 +118,26 @@ public class View extends JFrame {
                             break;
                         }
                         case 2: {
-                            int index = diskList.indexOf((Disk) message.getArg(0));
-                            diskList.remove(index);
+                            Disk disk = (Disk) message.getArg(0);
+                            diskList.remove(diskList.indexOf(disk));
                             break;
                         }
                         case 3: {
-                            int index = diskList.indexOf((Disk) message.getArg(0));
-                            diskList.get(index).removeIssuance();
+                            Disk disk = (Disk) message.getArg(0);
+                            diskList.get(diskList.indexOf(disk)).removeIssuance();
                             break;
                         }
                         case 4: {
-                            int index = diskList.indexOf((Disk) message.getArg(0));
-                            Disk disk = diskList.get(index);
+                            Disk disk = (Disk) message.getArg(0);
+                            disk = diskList.get(diskList.indexOf(disk));
                             disk.setRusTitle((String) message.getArg(1));
                             disk.setEngTitle((String) message.getArg(2));
                             disk.setReleaseYear((int) message.getArg(3));
                             break;
                         }
                         case 5: {
-                            int index = diskList.indexOf((Disk) message.getArg(0));
-                            diskList.get(index).setIssuance((Issuance) message.getArg(1));
+                            Disk disk = (Disk) message.getArg(0);
+                            diskList.get(diskList.indexOf(disk)).setIssuance((Issuance) message.getArg(1));
                             break;
                         }
                         case 6: {
@@ -170,13 +169,7 @@ public class View extends JFrame {
             e.printStackTrace();
         }
 
-        sortingСomboBox.addItem("Русское название фильма");
-        sortingСomboBox.addItem("Английское название фильма");
-        sortingСomboBox.addItem("Год выпуска фильма");
-        sortingСomboBox.addItem("Русское название фильма (обратн.)");
-        sortingСomboBox.addItem("Английское название фильма (обратн.)");
-        sortingСomboBox.addItem("Год выпуска фильма (обратн.)");
-        sortingBy = sortingСomboBox.getSelectedIndex();
+        sortingBy = sortingComboBox.getSelectedIndex();
 
         Integer[] ports = {7070, 7071, 7072, 7073, 7074};
         while (!isConnected) {
@@ -580,8 +573,8 @@ public class View extends JFrame {
             }
         });
 
-        sortingСomboBox.addActionListener(e -> {
-            sortingBy = sortingСomboBox.getSelectedIndex();
+        sortingComboBox.addActionListener(e -> {
+            sortingBy = sortingComboBox.getSelectedIndex();
             updateDiskLists();
             editButton.setEnabled(false);
             deleteButton.setEnabled(false);
@@ -711,6 +704,7 @@ public class View extends JFrame {
 
     /**
      * Возвращает компаратор в зависимости от текущей настройки сортировки
+     *
      * @return Comparator
      */
     private Comparator<Disk> getComparator() {
